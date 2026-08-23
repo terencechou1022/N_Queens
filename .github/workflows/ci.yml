@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      # 測試本身只用標準庫與 nqueens/，但照樣裝完 requirements.txt——
+      # 這樣 CI 也順便驗證宣告的相依是否真的裝得起來。
+      - name: 安裝相依套件
+        run: pip install -r requirements.txt
+
+      # 與 README 的指令一致。pytest.ini 已設 pythonpath = .，
+      # 因此裸 pytest 也可行，這裡沿用 README 寫法以免兩處分歧。
+      - name: 執行測試
+        run: python -m pytest -q

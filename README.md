@@ -1,10 +1,8 @@
 # N 皇后問題：三種啟發式演算法的實驗比較
 
-以爬山演算法（Hill Climbing）、模擬退火（Simulated Annealing）、基因演算法（Genetic Algorithm）求解 N 皇后問題，並在統一的時間預算下系統性比較三者的成功率、求解時間與收斂行為。
+以爬山演算法（Hill Climbing）、模擬退火（Simulated Annealing）、基因演算法（Genetic Algorithm）求解 N 皇后問題。三者實作在共用介面之下，於相同的 60 秒時間預算與固定 seed 下比較成功率、求解時間與收斂行為——結果顯示三者在 n=8 難分高下，規模一拉開卻以完全不同的方式失敗。
 
 專案從四支各自獨立的求解腳本出發，逐步重構為共用介面的套件、加上單元測試，最後以 360 次可重現的實驗（3 種演算法 × 多個棋盤大小 × 每格 20 個固定 seed）量化三者的差異。
-
-![8 皇后合法解](docs/images/board_n8.png)
 
 ## 問題定義
 
@@ -134,7 +132,7 @@ python -m pytest -q
 # 跑完整 benchmark，約 1 至 2 小時（視機器而定），逐列寫入可中斷
 python experiments/run_benchmark.py
 
-# 由 benchmark 數據產出四張圖與數據表
+# 由 benchmark 數據產出三張圖與數據表
 python experiments/make_charts.py
 ```
 
