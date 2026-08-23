@@ -1,11 +1,10 @@
-"""讀取 results/benchmark.csv 產出 README 用的四張圖，存至 docs/images/。
+"""讀取 results/benchmark.csv 產出 README 用的三張圖，存至 docs/images/。
 
 1. success_rate.png：各演算法成功率隨 N 的變化
 2. time_vs_n.png：成功案例的中位數求解時間隨 N 的變化（對數刻度）
 3. convergence.png：三演算法在 n=20、seed=0 的收斂曲線
-4. board_n8.png：8 皇后合法解的棋盤圖
 
-收斂曲線與棋盤圖不走 CSV，以固定 seed 直接呼叫求解器重現。
+收斂曲線不走 CSV，以固定 seed 直接呼叫求解器重現。
 執行方式（於專案根目錄）：python experiments/make_charts.py
 """
 import csv
@@ -17,7 +16,6 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 from matplotlib.ticker import FormatStrFormatter, NullFormatter, ScalarFormatter
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -174,32 +172,6 @@ def chart_convergence(n=20, seed=0):
     plt.close(fig)
 
 
-def chart_board(n=8, seed=0):
-    result = simulated_annealing.solve(n, seed=seed)
-    fig, ax = plt.subplots(figsize=(4.6, 4.6))
-    for col in range(n):
-        for row in range(n):
-            shade = SURFACE if (col + row) % 2 == 0 else GRID
-            ax.add_patch(Rectangle((col, row), 1, 1,
-                                   facecolor=shade, edgecolor="none"))
-        # queens[col] = row：以圓點標出皇后位置
-        ax.add_patch(plt.Circle((col + 0.5, result.solution[col] + 0.5), 0.3,
-                                facecolor=COLORS["simulated_annealing"],
-                                edgecolor=SURFACE, linewidth=1.5))
-    ax.set_xlim(0, n)
-    ax.set_ylim(0, n)
-    ax.set_aspect("equal")
-    ax.set_xticks([x + 0.5 for x in range(n)], [str(x) for x in range(n)])
-    ax.set_yticks([y + 0.5 for y in range(n)], [str(y) for y in range(n)])
-    ax.tick_params(length=0)
-    for spine in ax.spines.values():
-        spine.set_color(AXIS)
-    ax.set_title(f"{n} 皇后合法解（模擬退火，seed={seed}）", color=INK)
-    fig.tight_layout()
-    fig.savefig(IMG_DIR / "board_n8.png", dpi=150, bbox_inches="tight")
-    plt.close(fig)
-
-
 def print_summary_table(stats):
     """輸出 README 數據表用的 Markdown。"""
     print("| 演算法 | N | 成功率 | 中位數求解時間（秒） |")
@@ -219,8 +191,7 @@ def main():
     chart_success_rate(stats, all_ns)
     chart_time_vs_n(stats, all_ns)
     chart_convergence()
-    chart_board()
-    print(f"四張圖已輸出至 {IMG_DIR}\n")
+    print(f"三張圖已輸出至 {IMG_DIR}\n")
     print_summary_table(stats)
 
 
