@@ -121,6 +121,42 @@
 - **模擬退火**：前約 180 步的高溫期會接受劣解，衝突數劇烈震盪、一度衝上 35；溫度失效後轉為貪婪下降，接著在低衝突區走出長長的平台，約 1,400 步收斂。與演算法一節的推算一致——真正的「退火」只發生在前段。
 - **基因**：1,000 個隨機排列的初始族群，最佳個體只有 2 個衝突，但接下來不降反升到 7 至 9。這個實作沒有菁英保留（elitism），輪盤選擇不保證最佳個體活進下一代，交配也會拆散好的組合；之後靠選擇壓力與自適應突變才階梯狀降回 0。「初始就很好」和「穩定收斂」是兩回事。
 
+## 互動 demo
+
+```bash
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+選演算法、N、seed 與時間預算，看棋盤與收斂曲線（曲線直接讀 `SolveResult.history`，沒有另外插樁）。也可以切到「三者同 seed 對照」一次跑三個。
+
+重點不是看它解出來，是**看它怎麼失敗**。兩組建議的參數：
+
+| 想看的失敗模式 | 參數 |
+|---|---|
+| 逾時 | 爬山演算法、N=32、時間預算 5 秒 |
+| 迭代預算用盡 | 模擬退火、N=64、時間預算 60 秒 |
+
+第二組只花約 9 秒就結束，時間還剩五十幾秒——它用完的是降溫步數不是秒數。這兩種失敗在下面的分析裡有完整的量化。
+
+不需網路、不需模型檔，純 CPU。
+
+## 結果分析 notebook
+
+[`notebooks/eda.ipynb`](notebooks/eda.ipynb) 讀 `results/benchmark.csv`，回答六個 README 沒有展開的問題，其中三個結論：
+
+- 失敗成因可由 `timed_out` **完全**切開——爬山與基因的失敗 100% 是逾時，模擬退火 0%
+- 模擬退火撞的是 **13,557 步的降溫天花板**，N=100 時 20 次全部撞頂：加時間預算救不了它
+- 每格 20 次重複的 95% Wilson 區間平均寬 **27 個百分點**，所以成功率曲線只能讀量級、不能讀單點
+
+執行：
+
+```bash
+jupyter nbconvert --execute --inplace notebooks/eda.ipynb
+```
+
+只讀已納入版控的 CSV，不需重跑實驗、不需網路。
+
 ## 重現方式
 
 ```bash
@@ -128,6 +164,9 @@ pip install -r requirements.txt
 
 # 單元測試（16 個案例：衝突計算、解合法性、seed 重現性、逾時路徑）
 python -m pytest -q
+
+# 連同 notebook 一起跑（確認 notebook 的輸出沒有過期）
+python -m pytest -q --nbmake notebooks/
 
 # 跑完整 benchmark，約 1 至 2 小時（視機器而定），逐列寫入可中斷
 python experiments/run_benchmark.py
@@ -156,6 +195,8 @@ print(result.solved, result.conflicts, result.iterations, result.solution)
 ├── experiments/
 │   ├── run_benchmark.py         實驗網格 → results/benchmark.csv
 │   └── make_charts.py           benchmark 數據 → docs/images/*.png
+├── notebooks/eda.ipynb          benchmark 結果分析（失敗模式、信賴區間）
+├── streamlit_app.py             互動 demo（streamlit run streamlit_app.py）
 ├── tests/                       單元測試
 ├── results/benchmark.csv        360 次實驗的原始數據
 └── docs/images/                 README 引用的圖表

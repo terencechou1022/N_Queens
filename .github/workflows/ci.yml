@@ -26,3 +26,9 @@ jobs:
       # 因此裸 pytest 也可行，這裡沿用 README 寫法以免兩處分歧。
       - name: 執行測試
         run: python -m pytest -q
+
+      # notebook 的輸出是存在 .ipynb 檔案裡的：資料換了、套件升版之後，
+      # 圖表還會顯示著舊數字，看起來一切正常。nbmake 每次都重跑一遍，
+      # 任何一格拋例外就讓 CI 紅——這是唯一能防止 notebook 悄悄過期的方式。
+      - name: 執行 notebook（防止舊輸出悄悄過期）
+        run: python -m pytest -q --nbmake notebooks/

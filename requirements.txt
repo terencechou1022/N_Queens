@@ -1,2 +1,11 @@
+# 實驗與繪圖
 matplotlib>=3.8
+
+# 測試
 pytest>=8.0
+nbmake>=1.5          # 以 pytest --nbmake 執行 notebooks/，防止 notebook 的舊輸出悄悄過期
+
+# 互動 demo（streamlit_app.py）與分析 notebook（notebooks/eda.ipynb）專用，
+# 跑 experiments/ 底下的實驗不需要
+streamlit>=1.35
+pandas>=2.2
