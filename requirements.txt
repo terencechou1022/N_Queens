@@ -1,2 +1,5 @@
+# 實驗與繪圖
 matplotlib>=3.8
+
+# 測試
 pytest>=8.0

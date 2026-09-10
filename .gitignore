@@ -1,3 +1,8 @@
 __pycache__/
 .pytest_cache/
 tasks/
+
+# 虛擬環境
+.venv/
+venv/
+
